@@ -1,11 +1,31 @@
-import React from 'react'
+import React from "react";
+import { client } from "@/sanity/lib/client";
+import Header from "../components/Header";
+import { Post } from "../utils/Interface";
+import PostComponent from "../components/PostComponent";
 
-const page = () => {
-  return (
-    <div>
-      <h1>hello</h1>
-    </div>
-  )
+async function getPosts() {
+  const query = `*[_type=="post"]{
+    title,
+    slug,
+    publishedAt,
+    excerpt,
+  }
+  `;
+  const data = await client.fetch(query);
+  return data;
 }
 
-export default page
+export default async function Page() {
+  const posts: Post[] = await getPosts();
+  console.log(posts, "posts ");
+  return (
+    <div>
+      <Header title="Articles"></Header>
+      <div>
+        {posts?.length &&
+          posts?.map((post) => <PostComponent key={post?._id} post={post} />)}
+      </div>
+    </div>
+  );
+}
